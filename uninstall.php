@@ -19,13 +19,15 @@
  * For more information, see the following discussion:
  * https://github.com/tommcfarlin/WordPress-Plugin-Boilerplate/pull/123#issuecomment-28541913
  *
- * @link       http://localhost/WordPress/
- * @since      1.0.0
- *
- * @package    Book_Plugin
+ * @category Plugin
+ * @package  Book_Plugin
+ * @author   tejas patle <tejas.patle@hbwsl.com>
+ * @license  GPL 3.0
+ * @link     http://localhost/WordPress/
+ * @since    1.0.0
  */
 
 // If uninstall not called from WordPress, then exit.
-if ( ! defined( 'WP_UNINSTALL_PLUGIN' ) ) {
-	exit;
+if (! defined('WP_UNINSTALL_PLUGIN') ) {
+    exit;
 }

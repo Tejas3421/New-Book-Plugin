@@ -5,8 +5,8 @@
  *
  * This file is used to markup the admin-facing aspects of the plugin.
  *
- * @link       http://localhost/WordPress/
- * @since      1.0.0
+ * @link  http://localhost/WordPress/
+ * @since 1.0.0
  *
  * @package    Book_Plugin
  * @subpackage Book_Plugin/admin/partials

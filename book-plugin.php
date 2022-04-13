@@ -8,9 +8,9 @@
  * registers the activation and deactivation functions, and defines a function
  * that starts the plugin.
  *
- * @link              http://localhost/WordPress/
- * @since             1.0.0
- * @package           Book_Plugin
+ * @link    http://localhost/WordPress/
+ * @since   1.0.0
+ * @package Book_Plugin
  *
  * @wordpress-plugin
  * Plugin Name:       Book Plugin
@@ -26,8 +26,8 @@
  */
 
 // If this file is called directly, abort.
-if ( ! defined( 'WPINC' ) ) {
-	die;
+if (! defined('WPINC') ) {
+    die;
 }
 
 /**
@@ -35,34 +35,36 @@ if ( ! defined( 'WPINC' ) ) {
  * Start at version 1.0.0 and use SemVer - https://semver.org
  * Rename this for your plugin and update it as you release new versions.
  */
-define( 'BOOK_PLUGIN_VERSION', '1.0.0' );
+define('BOOK_PLUGIN_VERSION', '1.0.0');
 
 /**
  * The code that runs during plugin activation.
  * This action is documented in includes/class-book-plugin-activator.php
  */
-function activate_book_plugin() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-book-plugin-activator.php';
-	Book_Plugin_Activator::activate();
+function activate_book_plugin()
+{
+    include_once plugin_dir_path(__FILE__) . 'includes/class-book-plugin-activator.php';
+    Book_Plugin_Activator::activate();
 }
 
 /**
  * The code that runs during plugin deactivation.
  * This action is documented in includes/class-book-plugin-deactivator.php
  */
-function deactivate_book_plugin() {
-	require_once plugin_dir_path( __FILE__ ) . 'includes/class-book-plugin-deactivator.php';
-	Book_Plugin_Deactivator::deactivate();
+function deactivate_book_plugin()
+{
+    include_once plugin_dir_path(__FILE__) . 'includes/class-book-plugin-deactivator.php';
+    Book_Plugin_Deactivator::deactivate();
 }
 
-register_activation_hook( __FILE__, 'activate_book_plugin' );
-register_deactivation_hook( __FILE__, 'deactivate_book_plugin' );
+register_activation_hook(__FILE__, 'activate_book_plugin');
+register_deactivation_hook(__FILE__, 'deactivate_book_plugin');
 
 /**
  * The core plugin class that is used to define internationalization,
  * admin-specific hooks, and public-facing site hooks.
  */
-require plugin_dir_path( __FILE__ ) . 'includes/class-book-plugin.php';
+require plugin_dir_path(__FILE__) . 'includes/class-book-plugin.php';
 
 /**
  * Begins execution of the plugin.
@@ -71,12 +73,13 @@ require plugin_dir_path( __FILE__ ) . 'includes/class-book-plugin.php';
  * then kicking off the plugin from this point in the file does
  * not affect the page life cycle.
  *
- * @since    1.0.0
+ * @since 1.0.0
  */
-function run_book_plugin() {
+function run_book_plugin()
+{
 
-	$plugin = new Book_Plugin();
-	$plugin->run();
+    $plugin = new Book_Plugin();
+    $plugin->run();
 
 }
 run_book_plugin();

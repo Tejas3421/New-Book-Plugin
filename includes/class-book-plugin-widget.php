@@ -4,7 +4,7 @@
  * Class For Widget
  *
  * @link       
- * @since      1.0.0
+ * @since 1.0.0
  *
  * @package    Book
  * @subpackage Book/includes
@@ -22,7 +22,7 @@
  * @author     Tejas Patle 
  */
 
-class Book_Catagory_Widget extends WP_Widget 
+class Book_Catagory_Widget extends WP_Widget
 {
     /**
      * constructor for widget class
@@ -42,10 +42,9 @@ class Book_Catagory_Widget extends WP_Widget
 
         $sql= 'SELECT * FROM wp_post WHERE category='.$category;        
 
-        error_log(print_r($sql ,true));
+        error_log(print_r($sql, true));
 
-        if(!empty($instance['category']))
-        {
+        if(!empty($instance['category'])) {
             
             echo $args['before_title'].'Post from category ' . $args['after_title'];
             $args = array(
@@ -57,7 +56,7 @@ class Book_Catagory_Widget extends WP_Widget
 
             while($cats->have_posts)
             {
-                error_log(print_r("In post title fcuntion",true));
+                error_log(print_r("In post title fcuntion", true));
                 echo '<ul>';
                 echo '<li>'.$cats->post_title()."</li>";
                 echo '</ul>';
@@ -71,8 +70,7 @@ class Book_Catagory_Widget extends WP_Widget
     function form($instance)
     {
 
-        if(isset($instance['category']))
-        {
+        if(isset($instance['category'])) {
             $catagory= $instance['category'];  
         }
         else{
