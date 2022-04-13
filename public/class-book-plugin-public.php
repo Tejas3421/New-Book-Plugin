@@ -106,43 +106,12 @@ class Book_Plugin_Public {
 	
 	
 
-	public function book_admin_dashboard_widget()
-	{
-		global $wp_meta_boxes;
-		wp_add_dashboard_widget( 
-			'book_admin_dashboard_widget',
-			'book_admin_dashboard_widget Title',
-			[self::class, 'book_admin_dashboard_widget_callback']
-		);
-	}
-
-	public static function book_admin_dashboard_widget_callback()
-	{
-		echo '<h2>This is my admin widget to get top 5 catagories</h2>';
-		$args = array(
-			"taxonomy"  => "book-catagory", 
-			"orderby"   => "count",
-			"order"     => "DESC"
-		);
-
-
-		$cats = get_categories($args);
-		$count = 0;
-		foreach($cats as $cat) {
-			if ($count == 5 ) {
-				break;
-			} else {
-				echo '<p style="color:red;">'.$cat->name ." " .$cat->count."</p>" ;
-				$count++;
-			}
-			
-
-		}
-	}
-
 	function Create_Book_Catagory_widget() 
 	{
 		register_widget('Book_Catagory_Widget');
 	}
+
+
+	
 
 }

@@ -220,9 +220,9 @@ class Book_Plugin_Admin {
 			<div id='currency-container'>
 				<label for="currency">Currency</label>
 				<select id="currency" name="currency">
-					<option value="₹" <?php selected($options, '₹'); ?>>₹</option>
-					<option value="$" <?php selected($options, '$'); ?>>$</option>
-					<option value="€" <?php selected($options, '€'); ?>>€</option>
+					<option value="₹">₹</option>
+					<option value="$">$</option>
+					<option value="€">€</option>
 				</select>
 			</div><br><br>
 			<div id='no_of_post'>
@@ -276,11 +276,11 @@ class Book_Plugin_Admin {
             $c.= '<div style="border: 1px solid green;">
 			<p style="text-align:center;">Book Details</p>
 			<p style="text-align:center;">ID of Book '.$row->post_id.'</p>
-			<p style="text-align:center;">Author of Book'.$row->author.'</p>
-			<p style="text-align:center;">Price of Book'.$row->price.'</p>
-			<p style="text-align:center;">Publisher Of Book'.$row->publisher.'</p>
-			<p style="text-align:center;">pulished year'.$row->year.'</p>
-			<p style="text-align:center;">edition of book'.$row->edition.'</p>
+			<p style="text-align:center;">Author of Book '.$row->author.'</p>
+			<p style="text-align:center;">Price of Book '.$row->price.'</p>
+			<p style="text-align:center;">Publisher Of Book '.$row->publisher.'</p>
+			<p style="text-align:center;">pulished year '.$row->year.'</p>
+			<p style="text-align:center;">edition of book '.$row->edition.'</p>
 			</div><br/>';
         }
         $c .= '</div>';
@@ -314,17 +314,18 @@ class Book_Plugin_Admin {
 	
 	public static function Book_Meta_fields() 
 	{
+		global $wpdb ,$post;
 		?>
 		<label for="author">Enter Book Author</label>&nbsp;&nbsp;&nbsp;
-        <input type="text" placeholder="Book Author" id="author" name="author_name" ><br/><br/>
+        <input type="text" placeholder="Book Author" id="author" name="author_name" value="<?php echo $wpdb->get_var("SELECT author FROM `wp_metabox` WHERE post_id=".$post->ID); ?>"><br/><br/>
         <label for="book_price">Enter Book Price</label>&nbsp;&nbsp;&nbsp;
-        <input type="number" placeholder="Book Price" id="book_price" name="book_price" ><br/><br/>
+        <input type="number" placeholder="Book Price" id="book_price" name="book_price" value="<?php echo $wpdb->get_var("SELECT price FROM `wp_metabox` WHERE post_id=".$post->ID); ?>"><br/><br/>
         <label for="book_publisher">Enter Book Publisher</label>&nbsp;&nbsp;&nbsp;
-        <input type="text" placeholder="Book Publisher" id="book_publisher" name="book_publisher"><br/><br/>
+        <input type="text" placeholder="Book Publisher" id="book_publisher" name="book_publisher" value="<?php echo $wpdb->get_var("SELECT publisher FROM `wp_metabox` WHERE post_id=".$post->ID); ?>"><br/><br/>
         <label for="book_year">Book Year</label>&nbsp;&nbsp;&nbsp;
-        <input type="numberS" placeholder="Book Year" id="book_year" name="book_year" ><br/><br/>
+        <input type="numberS" placeholder="Book Year" id="book_year" name="book_year" value="<?php echo $wpdb->get_var("SELECT year FROM `wp_metabox` WHERE post_id=".$post->ID); ?>"><br/><br/>
         <label for="book_edition">Book Edition</label>&nbsp;&nbsp;&nbsp;
-        <input type="text" placeholder="Book Edition" id="book_edition" name="book_edition"><br/><br/>
+        <input type="text" placeholder="Book Edition" id="book_edition" name="book_edition" value="<?php echo $wpdb->get_var("SELECT edition FROM `wp_metabox` WHERE post_id=".$post->ID); ?>"><br/><br/>
         <?php
 
 	}
@@ -356,9 +357,9 @@ class Book_Plugin_Admin {
 			dbDelta($sql);
 		}*/
 
-
+		
         $wpdb->insert(
-            $tablename, [
+            $tablename, [ 
             'post_id' => $post->ID,
             'author' => $_POST['author_name'],
             'price' => $_POST['book_price'],
@@ -411,4 +412,39 @@ class Book_Plugin_Admin {
         );
 	 }
 
+	 public function book_admin_dashboard_widget()
+	{
+		global $wp_meta_boxes;
+		wp_add_dashboard_widget( 
+			'book_admin_dashboard_widget',
+			'book_admin_dashboard_widget Title',
+			[self::class, 'book_admin_dashboard_widget_callback']
+		);
+	}
+
+	public static function book_admin_dashboard_widget_callback()
+	{
+		 echo '<h2>This is my admin widget to get top 5 catagories</h2>';
+		 $args = array(
+			 "taxonomy"  => "book-catagory", 
+			 "orderby"   => "count",
+			 "order"     => "DESC"
+		 );
+ 
+ 
+		 $cats = get_categories($args);
+		 $count = 0;
+		 foreach($cats as $cat) {
+			 if ($count == 5 ) {
+				 break;
+			 } else {
+				 echo '<p style="color:red;">'.$cat->name ." " .$cat->count."</p>" ;
+				 $count++;
+			 }
+			 
+ 
+		 }
+	}
+
+	
 }

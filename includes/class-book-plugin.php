@@ -169,6 +169,7 @@ class Book_Plugin {
 		$this->loader->add_action('init', $plugin_admin, 'shortcode_adding_fucntion');
 		$this->loader->add_action('add_meta_boxes', $plugin_admin, 'Add_Book_Meta_box');
 		$this->loader->add_action('save_post', $plugin_admin, 'Save_Meta_Data_book');
+		$this->loader->add_action( 'wp_dashboard_setup', $plugin_admin, 'book_admin_dashboard_widget');
 		//$this->loader->add_action('init', $plugin_admin, 'create_cuxstom_gutenburg_block');
 
 		
@@ -187,7 +188,6 @@ class Book_Plugin {
 
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_styles' );
 		$this->loader->add_action( 'wp_enqueue_scripts', $plugin_public, 'enqueue_scripts' );
-		$this->loader->add_action( 'wp_dashboard_setup', $plugin_public, 'book_admin_dashboard_widget');
 		$this->loader->add_action('widgets_init', $plugin_public, 'Create_Book_Catagory_widget');
 
 	}
