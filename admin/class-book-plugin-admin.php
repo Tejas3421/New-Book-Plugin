@@ -107,13 +107,15 @@ class Book_Plugin_Admin
     // My Admin Functions Starts Here
 
     public function Register_Custom_Post_Type_books()
-    {
+    { 
+        
+        //error_log(print_r('functioncalled',true));
         $labels= array(
         'name'=>'Books',
         'singular-name'=>'Book'
         );
         
-        $supports= array('title','editor','thumbnail','comments','excerpts');
+        $supports= array('title','editor','thumbnail','comments','excerpts');  //array of element support by our post type
             
         $options = array(
         'labels' => $labels,
@@ -123,8 +125,11 @@ class Book_Plugin_Admin
         'taxonomies'=> array('book-catagory','book-tag')
         );
 
-        register_post_type("Book", $options);
-    }
+
+        //registering custom post type
+        register_post_type("book", $options);  
+
+    } 
     
     /**
      *  Created custom hierarchical taxonomy 
@@ -143,8 +148,11 @@ class Book_Plugin_Admin
         'rewrite'=> array('slug' => 'book-catagory'),
         'show_admin_column'=>false
         );
-        
-        register_taxonomy('book-catagory', array('book'), $options);
+
+
+        //register catagory for Book post type
+
+        register_taxonomy('book-catagory', array('book'), $options); 
     }
     
     
@@ -166,14 +174,14 @@ class Book_Plugin_Admin
         ); 
 
         $options=array(
-        'hierarchical' => false,
+        'hierarchical' => false, 
         'labels' => $labels,
         'show_in_rest' => true,
         'show_admin_column' => false,
-        'rewrite' => array( 'slug' => 'book-tag' )
+        'rewrite' => array( 'slug' => 'book-tag' ) 
         );
 
-        register_taxonomy('book-tag', 'book', $options);
+        register_taxonomy('book-tag', 'book', $options); //registering taxonomy for book tag
     }   
 
     
@@ -185,9 +193,7 @@ class Book_Plugin_Admin
      */
     public function Add_Menu_Page_book()
     {
-        //  add_menu_page('Books Setting', 'Books Setting', 'manage_options', 'book-setting-page', 'Book_Setting_Page_book');
-
-        //add_submenu_page('books', 'Books Setting', 'Books Setting', 'manage_options', 'book-setting-page', 'Book_Setting_Page_book');
+        //added submenu section Book setting inn Book POst Type
         add_submenu_page(
             'edit.php?post_type=book', //$parent_slug
             'Book Settings Page',  //$page_title
@@ -208,36 +214,44 @@ class Book_Plugin_Admin
     Public static function Book_Setting_Page_book()
     {
 
-        if(isset($_POST['currency']) && isset($_POST['no_of_post'])) {
-            $currency=$_POST['currency'];
-            $no_of_post=$_POST['no_of_post'];
 
-            update_option('book_currency', $currency);
-            update_option('book_no_of_post', $no_of_post);
+        //check for currency and no of post per page is given or not
+        if(isset($_POST['currency']) && isset($_POST['no_of_post'])) { 
+            
+            //saving entered data in variable
+            $currency=$_POST['currency'];           
+            $no_of_post=$_POST['no_of_post'];       
+
+            update_option('book_currency', $currency);       //update currency option
+            update_option('book_no_of_post', $no_of_post);		//update no of post options
         }
+        
+        //getting previous option 
+        $options = get_option('book_currency'); 
+
+        echo '<script>console.log("'.$options.'")</script>';
+        
         ?>
 
-        <h2>
-            Hii This is Book Setting Page
-        </h2>
-        <h4>Here you can set your currency no of post per page</h4>
-        <form method=post>
-            <div id='currency-container'>
-                <label for="currency">Currency</label>
-                <select id="currency" name="currency">
-                    <option value="₹">₹</option>
-                    <option value="$">$</option>
-                    <option value="€">€</option>
-                </select>
-            </div><br><br>
-            <div id='no_of_post'>
-                <label>No of Post Per page</label>
-                <input type='number' id='no_of_post'><br><br>
-            </div><br>
-            <input type="submit" class="button-primary" value='<?php _e('Save changes'); ?>' />
-        <form>
-
-        <?php   
+            <!--This is form for admin book setting menu page to select currency and no of post per page--->
+            <h1>Book Setting Page</h1>
+            <form method="post">
+            <label for="currency">Currency</label>
+            <select id="currency" name="currency">
+              <option value="₹" <?php selected($options, '₹'); ?>>₹</option>
+              <option value="$" <?php selected($options, '$'); ?>>$</option>
+              <option value="€" <?php selected($options, '€'); ?>>€</option>
+            </select>
+            <br><br>
+            
+            <label for="no_of_post">No of post per page</label>
+            
+                <input type="number" id="no_of_post" placeholder="Eg. 4 or 5" name="no_of_post"><br/><br/>
+                <input type="submit" class="button-primary" value="<?php _e('Save changes', 'bookdomain'); ?>" />
+            </form>
+                
+        <?php
+  
         
     }
 
@@ -254,29 +268,88 @@ class Book_Plugin_Admin
      */
     public function Shortcode_book(  $atts=[] , $content = null , $tag = '')
     {
-        global $wpdb;
-        $query = 'SELECT * FROM `wp_metabox`';
-        $data = $wpdb->get_results($query);
-        $newdata = [];
+        //global $wpdb
+
         
-        if ($atts) {
-            foreach($atts as $key => $a) {
-                
-                echo '<script>console.log("'.$a.'")</script>';
-                foreach ($data as $d)
-                {
-                    echo '<script>console.log("'.$d->$key.'")</script>';
-                    
-                    if($d->$key == $a) {
+
+
+        
+        /*if ($atts) {
+            foreach ($atts as $key => $a) {
+                // 
+
+                $args=array(
+                    'post_type'=>'book',
+                    'meta_query'=> array(
+                        array(
+                        'key'=> $key,
+                        'value'=> $a
+                        ),
+                    )
+                );
+    
+                $query = new WP_Query($args);
+
+                //echo '<script>console.log("'.'")</script>';
+
+                foreach ($query as $d) {
+                    if ($d->$key == $a) {
                         array_push($newdata, $d);
                     }
                 }
+
+                // foreach($data as $d){
+
+                // }
             }
             $data = $newdata;
+        } */
+
+        
+        if ($atts) {
+
+            foreach($atts as $key => $a) { //getting key from user
+
+                //creating filter for 
+                
+                echo '<script>console.log("'.$key."   " .$a .'")</script>';  
+
+                echo get_metadata('book',6,$key);
+                
+            }
+           
+            
         } 
 
-        $c = '<div><p></p>';
-        foreach ($data as $row) {
+
+
+        /*if ( $query->posts ) {
+
+			foreach ( $query->posts as $key => $post_id ) {
+				// var_dump( $post_id );
+                echo '<script>console.log("HInd'.$post_id.'")</script>';
+				// Code goes here..
+			}
+		}*/
+
+        echo '<script>console.log("'.get_metadata().'")</script>';
+
+        while ( $query->have_posts() ) : 
+            $query->the_post();
+            echo '<script>console.log("'." HIii".get_the_id().'")</script>';
+            //echo  the_field('author_name'). " (" ;
+            //echo  the_field('book_year'). ") ";
+            //echo  the_field('book_publisher'). ". ";
+            echo '<b>' . the_title() . '</b>'. ", ";
+            //echo '<p></p>';
+
+        endwhile;
+
+
+        $content = '<div><p>HIuoidasnc</p>';
+        /*foreach ($newdata as $row) {
+
+            //printing information for book shortcode
             $c.= '<div style="border: 1px solid green;">
 			<p style="text-align:center;">Book Details</p>
 			<p style="text-align:center;">ID of Book '.$row->post_id.'</p>
@@ -286,20 +359,43 @@ class Book_Plugin_Admin
 			<p style="text-align:center;">pulished year '.$row->year.'</p>
 			<p style="text-align:center;">edition of book '.$row->edition.'</p>
 			</div><br/>';
-        }
-        $c .= '</div>';
-
-        return $c;
+        }*/
+        $content .= '</div>';
+        
+        return $content; //returning content
 
     }
 
     public function shortcode_adding_fucntion()
     {
-        add_shortcode('Book', [$this, 'Shortcode_book']);    
+
+        //added shortcode "Book"
+        add_shortcode('Book', [$this, 'New_Shortcode_book']);
     }
-    /**
-     * register widget
-     */
+
+
+    public function New_Shortcode_book( $atts=[] , $content = null , $tag = '')
+    {
+        
+        foreach($atts as $key => $a)
+        {
+            $get_all_post=get_posts(
+                array( 
+                'post_type' =>'book',
+                'meta_key' => $key,
+                'meta_value'=> $a
+                )
+            );
+
+            foreach($get_all_post as $index=>$post)
+            {
+                echo '<script>console.log("'." HIii".$post->ID.'")</script>';;
+            }
+
+        }
+
+
+    }
 
 
     /**
@@ -309,8 +405,10 @@ class Book_Plugin_Admin
      */
     public function Add_Book_Meta_box() 
     {
-        add_meta_box("book-meta-box", 'Book Meta Box', [self::class, 'Book_Meta_fields'], 'book');
+        //added meta box in book post type
+        add_meta_box("book-meta-box", 'Book Meta Box', [self::class, 'Book_Meta_fields'], 'book'); //adding meta box for book meta data
     }
+
 
     /**
      * Creating fields for Book 
@@ -318,18 +416,23 @@ class Book_Plugin_Admin
     
     public static function Book_Meta_fields() 
     {
-        global $wpdb ,$post;
+
+        //creating field for input meta data for book post type
         ?>
-        <label for="author">Enter Book Author</label>&nbsp;&nbsp;&nbsp;
-        <input type="text" placeholder="Book Author" id="author" name="author_name" value="<?php echo $wpdb->get_var("SELECT author FROM `wp_metabox` WHERE post_id=".$post->ID); ?>"><br/><br/>
-        <label for="book_price">Enter Book Price</label>&nbsp;&nbsp;&nbsp;
-        <input type="number" placeholder="Book Price" id="book_price" name="book_price" value="<?php echo $wpdb->get_var("SELECT price FROM `wp_metabox` WHERE post_id=".$post->ID); ?>"><br/><br/>
-        <label for="book_publisher">Enter Book Publisher</label>&nbsp;&nbsp;&nbsp;
-        <input type="text" placeholder="Book Publisher" id="book_publisher" name="book_publisher" value="<?php echo $wpdb->get_var("SELECT publisher FROM `wp_metabox` WHERE post_id=".$post->ID); ?>"><br/><br/>
-        <label for="book_year">Book Year</label>&nbsp;&nbsp;&nbsp;
-        <input type="numberS" placeholder="Book Year" id="book_year" name="book_year" value="<?php echo $wpdb->get_var("SELECT year FROM `wp_metabox` WHERE post_id=".$post->ID); ?>"><br/><br/>
-        <label for="book_edition">Book Edition</label>&nbsp;&nbsp;&nbsp;
-        <input type="text" placeholder="Book Edition" id="book_edition" name="book_edition" value="<?php echo $wpdb->get_var("SELECT edition FROM `wp_metabox` WHERE post_id=".$post->ID); ?>"><br/><br/>
+        <label for="author">Enter Book Author</label>
+        <input type="text" placeholder="Enter author name   " id="author" name="author_name" ><br/><br/>
+        
+        <label for="book_price">Enter Book Price</label>
+        <input type="number" placeholder="Book Price" id="book_price" name="book_price"); ><br/><br/>
+        
+        <label for="book_publisher">Enter Book Publisher</label>
+        <input type="text" placeholder="Book Publisher" id="book_publisher" name="book_publisher"><br/><br/>
+        
+        <label for="book_year">Book Year</label>
+        <input type="number" placeholder="Book Year" id="book_year" name="book_year" ><br/><br/>
+        
+        <label for="book_edition">Book Edition</label>
+        <input type="text" placeholder="Book Edition" id="book_edition" name="book_edition" ><br/><br/>
         <?php
 
     }
@@ -337,88 +440,57 @@ class Book_Plugin_Admin
     
 
 
-    public static function Save_Meta_Data_book($post_id)
+    //register metadata table with post type
+	
+
+
+
+	function add_myplugin_product_meta($post_id ) 
     {
-        global $wpdb,$post;
-        $tablename = $wpdb->prefix.'metabox';
-
         
-        /*if($wpdb->get_var("SHOW TABLES LIKE '$tablename'") != $tablename) {
-        //if table not in database. Create new table
-            
-        $charset_collate = $wpdb->get_charset_collate();
+        //updating author name in  book meta table
+        if(isset($_POST['author_name']))
+        {
+            update_metadata('book', $post_id ,'author_name' , $_POST['author_name'] ); 
+        }
 
-        $sql = "CREATE TABLE $tablename ( 
-        `id` INT , 
-        `Author_Name` VARCHAR(100), 
-        `price` INT , 
-        `publisher` VARCHAR(100) , 
-        `year` INT , 
-        `edition` VARCHAR(100) , 
-        PRIMARY KEY (`id`)) ENGINE = InnoDB;
-        ) $charset_collate;";
-            
-        dbDelta($sql);
-        }*/
-
+        //updating value of price in book meta table
+        if(isset($_POST['book_price']))
+        {
+            update_metadata('book', $post_id ,'book_price' , $_POST['book_price'] ); 
+        }
         
-        $wpdb->insert(
-            $tablename, [ 
-            'post_id' => $post->ID,
-            'author' => $_POST['author_name'],
-            'price' => $_POST['book_price'],
-            'publisher' => $_POST['book_publisher'],
-            'year' => $_POST['book_year'],
-            'edition' => $_POST['book_edition'], ],
-            ['%s', '%d', '%s', '%d', '%s']
-        );
-        $wpdb->update(
-            $tablename, [
-            'author' => $_POST['author_name'],
-            'price' => $_POST['book_price'],
-            'publisher' => $_POST['book_publisher'],
-            'year' => $_POST['book_year'],
-            'edition' => $_POST['book_edition'], ],
-            ['post_id' => $post->ID]
-        );
+        //updating value of publisher in meta table
+        if(isset($_POST['book_publisher']))
+        {
+            update_metadata('book', $post_id ,'book_publisher' , $_POST['book_publisher'] ); 
+        }
+
+        //updating value of year in book meta table
+        if(isset($_POST['book_year']))
+        {
+            update_metadata('book', $post_id ,'book_year' , $_POST['book_year'] ); 
+        }
+
+        //updating value of edition in book meta table
+        if(isset($_POST['book_edition']))
+        {
+            update_metadata('book', $post_id ,'book_edition' , $_POST['book_edition'] ); 
+        }
     }
 
-    
 
 
     public function create_custom_gutenburg_block()
     {
-        wp_register_script(
-            'custom-block-script', 
-            plugins_url(__FILE__).'/book/widget/build/index.js',
-            ['wp-element', 'wp-blocks', 'wp-api-fetch', 'wp-components', 'wp-block-editor'],
-        );
-
-        wp_register_style(
-            'custom-editor-css',
-            plugins_url(__FILE__).'/book/widget/editor.css',
-            []
-        );
-
-        wp_register_style(
-            'custom-style-css',
-            plugins_url(__FILE__).'/book/widget/style.css',
-            []
-        );
-
-
-        register_block_type(
-            'fancy-block-plugin/fancy-custom-block', [ 
-            'editor_script' => 'custom-block-script',
-            'editor_style' => 'custom-editor-css',
-            'style' => 'custom-style-css',
-            ]
-        );
+        
     }
 
     public function book_admin_dashboard_widget()
     {
-        global $wp_meta_boxes;
+
+        // add dashboard widget in admin dashboard
+
         wp_add_dashboard_widget( 
             'book_admin_dashboard_widget',
             'book_admin_dashboard_widget Title',
@@ -428,6 +500,9 @@ class Book_Plugin_Admin
 
     public static function book_admin_dashboard_widget_callback()
     {
+
+        // Output of dashboard widget to get 5 catagories
+
         echo '<h2>This is my admin widget to get top 5 catagories</h2>';
         $args = array(
         "taxonomy"  => "book-catagory", 
@@ -435,13 +510,19 @@ class Book_Plugin_Admin
         "order"     => "DESC"
         );
  
- 
+        //getting catagories based on filter above
         $cats = get_categories($args);
         $count = 0;
+
+        //looping through catagories
         foreach($cats as $cat) {
             if ($count == 5 ) {
+
+                //break after 5 top catagories
                 break;
             } else {
+
+                //display catagory name and its count.
                 echo '<p style="color:red;">'.$cat->name ." " .$cat->count."</p>" ;
                 $count++;
             }
@@ -450,5 +531,11 @@ class Book_Plugin_Admin
         }
     }
 
+    public function Register_metatable()
+    {
+        global $wpdb;
+        $wpdb->bookmeta = $wpdb->prefix.'bookmeta';
+        $wpdb->tables[]='bookmeta';
+    }
     
 }

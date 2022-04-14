@@ -36,33 +36,39 @@ class Book_Catagory_Widget extends WP_Widget
 
     function widget($args, $instance)
     {
-        $category = apply_filters('widget_title', $instance['category']);
+        $category = apply_filters('widget_category', $instance['category']);
 
         echo $args['before_widget'];
-
-        $sql= 'SELECT * FROM wp_post WHERE category='.$category;        
-
-        error_log(print_r($sql, true));
+        
+        
+        
 
         if(!empty($instance['category'])) {
             
-            echo $args['before_title'].'Post from category ' . $args['after_title'];
-            $args = array(
-                'category' => $category
-            );
-        
-            
-            $cats = get_post($args);
+            echo $args['before_title'].'Post from category '.$category . $args['after_title'];
 
-            while($cats->have_posts)
-            {
-                error_log(print_r("In post title fcuntion", true));
-                echo '<ul>';
-                echo '<li>'.$cats->post_title()."</li>";
-                echo '</ul>';
-            }
+        
+            $args = array(
+                'post_type' => 'book',
+                'taxonomy'  => $category
+                );
+
+            $posts = new WP_Query($args);
+
+            //checking that category has post or not
+            if($posts->have_posts()) :
+
+                //looping through posts
+                while ($posts->have_posts()) : $posts->the_post();
+                    //printing title of that book
+                    echo the_title().'<br>';
+                endwhile;
+                
+            endif;
             
         }
+
+
 
     }
 
@@ -77,6 +83,7 @@ class Book_Catagory_Widget extends WP_Widget
             $catagory = __('New Category');
         }
 
+            //form tag for entering category for widget
         ?>
           <div>
                 <label for='<?php echo $this->get_field_id('category') ?>'><?php _e("Category") ?></label>
@@ -85,12 +92,13 @@ class Book_Catagory_Widget extends WP_Widget
         <?php
     }
 
-    function update($new_instance, $old_instance)
+    //update instance
+    public function update( $new_instance, $old_instance ) 
     {
-        $instance=array();
-        $instance['category'] =(!empty($new_instance['category'])) ? strip_tags($new_instance['category']) : "" ; 
-        return $instance; 
-    }   
+        $instance = array();
+        $instance['title'] = ( ! empty( $new_instance['title'] ) ) ? strip_tags( $new_instance['title'] ) : '';
+        return $instance;
+    }
 
 }
 
