@@ -33,7 +33,7 @@ class Book_Plugin_Activator
     public static function activate()
     {
 
-        /* global $wpdb;
+      /* global $wpdb;
 
 
         $tablename = $wpdb->prefix.'metabox';
@@ -51,12 +51,12 @@ class Book_Plugin_Activator
 
         dbDelta($sql);
 
-        */
-        global $wpdb;
-        $charset_collate = $wpdb->get_charset_collate();
-        //$table_name = $wpdb->prefix . 'bookmeta';
+*/
+    global $wpdb;
+	$charset_collate = $wpdb->get_charset_collate();
+	//$table_name = $wpdb->prefix . 'bookmeta';
 
-        /*$sql = "CREATE TABLE {$wpdb->prefix}bookmeta (  
+	/*$sql = "CREATE TABLE {$wpdb->prefix}bookmeta (  
         `meta_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,  
         `book_id` bigint(20) unsigned NOT NULL,  
         `meta_key` varchar(255) COLLATE utf8mb4_unicode_ci DEFAULT NULL,  
@@ -66,18 +66,18 @@ class Book_Plugin_Activator
 
     
 
-        //require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
-    
+	//require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
+	
 
     
 
-        global $wpdb;
-      
-        include_once ABSPATH . 'wp-admin/includes/upgrade.php';
+    global $wpdb;
+	  
+    require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
     
-        
-        // Create book meta table
-        $schema = "CREATE TABLE {$wpdb->prefix}bookmeta (
+		
+    // Create book meta table
+		$schema = "CREATE TABLE {$wpdb->prefix}bookmeta (
 		meta_id bigint(20) NOT NULL AUTO_INCREMENT,
 		book_id bigint(20) NOT NULL DEFAULT '0',
 		meta_key varchar(255) DEFAULT NULL,
@@ -87,21 +87,18 @@ class Book_Plugin_Activator
 		KEY meta_key (meta_key)
 		) CHARACTER SET utf8 COLLATE utf8_general_ci;";
 
-        //$column = sanitize_key( $meta_type . '_id' );
+    //$column = sanitize_key( $meta_type . '_id' );
 
 
-        dbDelta($schema);
-
-        $wpdb->bookmeta = $wpdb->prefix.'bookmeta';
-        $wpdb->tables[]='bookmeta';
+    dbDelta( $schema );
 
 
-        /*global $wpdb;
+/*global $wpdb;
 
-        $wpdb->bookmeta = $wpdb->prefix . 'bookmeta';
+$wpdb->bookmeta = $wpdb->prefix . 'bookmeta';
 
             
-        return;
-        */
+return;
+*/
     }
 }

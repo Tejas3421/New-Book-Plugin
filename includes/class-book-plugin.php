@@ -129,7 +129,7 @@ class Book_Plugin
         /**
          * This file is for defining class for widget
          */
-        include_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-book-plugin-widget.php';
+        include_once plugin_dir_path(dirname(__FILE__)) . 'includes/class-book-catagory-widget.php';
 
         $this->loader = new Book_Plugin_Loader();
 
@@ -168,17 +168,17 @@ class Book_Plugin
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_styles');
         $this->loader->add_action('admin_enqueue_scripts', $plugin_admin, 'enqueue_scripts');
         $this->loader->add_action('init', $plugin_admin, 'Register_metatable', 0);
-        $this->loader->add_action('init', $plugin_admin, 'Register_Custom_Post_Type_books');
-        $this->loader->add_action('init', $plugin_admin, 'Register_Custom_Hierarchical_Taxonomy_Book_catagery');
-        $this->loader->add_action('init',  $plugin_admin, 'Register_Non_Hierarchical_Taxonomy_Book_tag');
-        $this->loader->add_action('admin_menu', $plugin_admin, 'Add_Menu_Page_book');
+        $this->loader->add_action('init', $plugin_admin, 'register_custom_post_type_books');
+        $this->loader->add_action('init', $plugin_admin, 'register_custom_hierarchical_taxonomy_book_catagery');
+        $this->loader->add_action('init',  $plugin_admin, 'register_non_hierarchical_taxonomy_book_tag');
+        $this->loader->add_action('admin_menu', $plugin_admin, 'add_menu_page_book');
         $this->loader->add_action('init', $plugin_admin, 'shortcode_adding_fucntion');
-        $this->loader->add_action('add_meta_boxes', $plugin_admin, 'Add_Book_Meta_box');
+        $this->loader->add_action('add_meta_boxes', $plugin_admin, 'add_book_meta_box');
         //$this->loader->add_action('save_post', $plugin_admin, 'Save_Meta_Data_book');
         $this->loader->add_action('wp_dashboard_setup', $plugin_admin, 'book_admin_dashboard_widget');
         //$this->loader->add_action( 'init', $plugin_admin,'pw_register_metadata_table',0 );
 
-        $this->loader->add_action('save_post', $plugin_admin, 'add_myplugin_product_meta', 10, 2);
+        $this->loader->add_action('save_post', $plugin_admin, 'update_book_meta_data', 10, 2);
 
 
 
