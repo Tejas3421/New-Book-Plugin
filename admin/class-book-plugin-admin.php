@@ -346,9 +346,9 @@ class Book_Plugin_Admin {
 			);
 		}
 
-		error_log(print_r($args, true));
+		error_log( print_r( $args, true ) );
 
-		$query = new WP_Query($args);
+		$postslist = get_posts( $args );
 
 		$c = '<div>';
 

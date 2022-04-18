@@ -43,7 +43,7 @@ class Book_Catagory_Widget extends WP_Widget {
 	 */
 	public function widget( $args, $instance ) {
 
-		// error_log(print_r($instance['category'],true));.
+		// error_log(print_r($instance['category'],true));
 
 		$category = apply_filters( 'widget_category', $instance['category'] );
 
@@ -51,7 +51,7 @@ class Book_Catagory_Widget extends WP_Widget {
 
 		if ( ! empty( $instance['category'] ) ) {
 
-			echo 'Post from category ' . esc_attr( apply_filters( 'widget_title', $instance['category'] ) ) . '<br>';
+			echo 'Post from category ' . esc_attr( apply_filters( 'widget_title', $instance['category'] )) . '<br>';
 
 			$args = array(
 				'post_type' => 'book',
