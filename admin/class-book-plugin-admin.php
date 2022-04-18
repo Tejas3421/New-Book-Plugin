@@ -35,7 +35,7 @@ class Book_Plugin_Admin {
 	 * @access private
 	 * @var    string    $plugin_name    The ID of this plugin.
 	 */
-	private $_plugin_name;
+	private $plugin_name;
 
 	/**
 	 * The version of this plugin.
@@ -44,7 +44,7 @@ class Book_Plugin_Admin {
 	 * @access private
 	 * @var    string    $version    The current version of this plugin.
 	 */
-	private $_version;
+	private $version;
 
 	/**
 	 * Initialization of constructor
@@ -271,58 +271,84 @@ class Book_Plugin_Admin {
 
 		$atts = shortcode_atts(
 			array(
-				'post_id'        => '',
-				'author_name'    => '',
-				'book_price'     => '',
-				'book_year'      => '',
-				'book_publisher' => '',
-				'category'       => '',
-				'tag'            => '',
+				'book_id'     => '',
+				'author_name' => '',
+				'price'       => '',
+				'year'        => '',
+				'publisher'   => '',
+				'category'    => '',
+				'tag'         => '',
 			),
 			$atts
 		);
 
+		$args = array(
+			'post_type'   => 'book',
+			'numberposts' => 100,
+			'post_status' => 'publish',
+			'meta_query'  => array(
+				'relation' => 'OR',
+
+			),
+		);
+
 		// adding attributes.
-		if ( '' !== $atts['post_id'] ) {
-			$args['post_id'] = $atts['post_id'];
+		if ( '' !== $atts['book_id'] ) {
+			$args['p'] = $atts['book_id'];
 		}
 
 		if ( '' !== $atts['author_name'] ) {
 			$args['meta_query'][] = array(
-				'key'   => 'author_name',
-				'value' => sanitize_text_field( $atts['author_name'] ),
+				'key'     => 'author_name',
+				'value'   => sanitize_text_field( $atts['author_name'] ),
+				'compare' => '=',
 			);
 		}
 
-		if ( '' !== $atts['book_year'] ) {
+		if ( '' !== $atts['price'] ) {
 			$args['meta_query'][] = array(
-				'key'   => 'book_year',
-				'value' => (int) $atts['book_year'],
+				'key'     => 'book_price',
+				'value'   => $atts['price'],
+				'compare' => '<',
 			);
 		}
 
-		if ( '' !== $atts['book_publisher'] ) {
+		if ( '' !== $atts['year'] ) {
 			$args['meta_query'][] = array(
-				'key'   => 'book_publisher',
-				'value' => sanitize_text_field( $atts['book_publisher'] ),
+				'key'     => 'book_year',
+				'value'   => $atts['year'],
+				'compare' => '=',
 			);
+		}
+
+		if ( '' !== $atts['publisher'] ) {
+			$args['meta_query'][] = array(
+				'key'     => 'book_publisher',
+				'value'   => sanitize_text_field( $atts['publisher'] ),
+				'compare' => '=',
+			);
+
 		}
 
 		if ( '' !== $atts['category'] ) {
 			$args['tax_query'][] = array(
-				'taxonomy' => 'book_catagory',
-				'terms'    => sanitize_text_field( $atts['category'] ),
+				'taxonomy' => 'book-catagory',
+				'field'    => 'slug',
+				'terms'    => $atts['category'],
 			);
 		}
 
 		if ( '' !== $atts['tag'] ) {
-			$args['tag'] = sanitize_text_field( $atts['tag'] );
+			$args['tax_query'][] = array(
+				'taxonomy' => 'book-tag',
+				'field'    => 'slug',
+				'terms'    => $atts['tag'],
+			);
 		}
 
-		// run query .
-		$postslist = get_posts( $args );
+		error_log(print_r($args, true));
 
-        error_log(print_r($args,true));
+		$query = new WP_Query($args);
 
 		$c = '<div>';
 
@@ -330,15 +356,19 @@ class Book_Plugin_Admin {
 		foreach ( $postslist as $all_post ) {
 
 			// printing details of book.
-			$c .= '<div style="border: 1px solid red;">
-                <p>' . get_post_meta( get_the_ID(), '_wp_trash_meta_status', true ) . '</p>
-                <p>' . get_post_meta( get_the_ID(), '_wp_trash_meta_time', true ) . '</p>
+
+			$c .= '<div style="border: 2px solid black;background-color:white;">
+                <p style="text-align:center;">ID of book     ' . esc_attr( $all_post->ID ) . '</p>
+                <p style="text-align:center;">Author Name    ' . get_metadata( 'book', $all_post->ID, 'author_name', true ) . '</p>
+                <p style="text-align:center;">Book Price     ' . get_metadata( 'book', $all_post->ID, 'book_price', true ) . '</p>
+                <p style="text-align:center;">Publisher      ' . get_metadata( 'book', $all_post->ID, 'book_edition', true ) . '</p>
+                <p style="text-align:center;">Book year      ' . get_metadata( 'book', $all_post->ID, 'book_year', true ) . '</p>
+                <p style="text-align:center;">Book Publisher ' . get_metadata( 'book', $all_post->ID, 'book_publisher', true ) . '</p>
                 </div><br/>';
 		}
 
 		return $c;
 	}
-
 
 	/**
 	 * Creating  Meta Box For Books

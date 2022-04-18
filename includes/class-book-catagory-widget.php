@@ -1,6 +1,6 @@
 <?php
 /**
- * Class For Widget
+ * Class For Book Catagory Widget
  *
  * @link
  * @since 1.0.0
@@ -42,18 +42,26 @@ class Book_Catagory_Widget extends WP_Widget {
 	 * @return void
 	 */
 	public function widget( $args, $instance ) {
+
+		// error_log(print_r($instance['category'],true));.
+
 		$category = apply_filters( 'widget_category', $instance['category'] );
 
 		echo esc_attr( $args['before_widget'] );
 
 		if ( ! empty( $instance['category'] ) ) {
 
-			echo 'Post from category ' . esc_attr( $category );
+			echo 'Post from category ' . esc_attr( apply_filters( 'widget_title', $instance['category'] ) ) . '<br>';
 
 			$args = array(
 				'post_type' => 'book',
-				'taxonomy'  => 'book_catagory',
-				'terms'     => $category,
+				'tax_query' => array(
+					array(
+						'taxonomy' => 'book-catagory',
+						'field'    => 'slug',
+						'terms'    => '',
+					),
+				),
 			);
 
 			$posts = new WP_Query( $args );
@@ -70,6 +78,8 @@ class Book_Catagory_Widget extends WP_Widget {
 
 			endif;
 
+			echo esc_attr( $args['after_widget'] );
+
 		}
 
 	}
@@ -85,7 +95,7 @@ class Book_Catagory_Widget extends WP_Widget {
 		if ( isset( $instance['category'] ) ) {
 			$catagory = $instance['category'];
 		} else {
-			$catagory = __( 'New Category' );
+
 		}
 
 		$args = array(
@@ -98,14 +108,19 @@ class Book_Catagory_Widget extends WP_Widget {
 			// form tag for entering category for widget.
 		?>
 		<div>
+			<form method='POST'>
 				<label for='category'><?php esc_attr_e( 'Category' ); ?></label>
 				<select id='category' name='category' >
 					<?php foreach ( $cats as $cat ) { ?>
-						<option><?php echo esc_attr( $cat->name ); ?></option>
+						<option value="<?php echo esc_attr( $cat->name ); ?>"><?php echo esc_attr( $cat->name ); ?></option>
 						<?php } ?>
 				</select>
-			</div>
+				<input type='submit' name='submit'>
+			</form>
+		</div>
+
 		<?php
+
 	}
 
 
@@ -118,8 +133,8 @@ class Book_Catagory_Widget extends WP_Widget {
 	 * @return string
 	 */
 	public function update( $new_instance, $old_instance ) {
-		$instance          = array();
-		$instance['title'] = ( ! empty( $new_instance['title'] ) ) ? wp_strip_all_tags( $new_instance['title'] ) : '';
+		$instance             = array();
+		$instance['category'] = ( ! empty( $new_instance['category'] ) ) ? wp_strip_all_tags( $new_instance['category'] ) : '';
 		return $instance;
 	}
 
