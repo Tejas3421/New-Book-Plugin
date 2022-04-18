@@ -115,7 +115,7 @@ class Book_Catagory_Widget extends WP_Widget {
 	 * @param [type] $new_instance updating instance.
 	 * @param [type] $old_instance getting old instance.
 	 *
-	 * @return void
+	 * @return string
 	 */
 	public function update( $new_instance, $old_instance ) {
 		$instance          = array();
