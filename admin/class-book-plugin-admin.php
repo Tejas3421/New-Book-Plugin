@@ -282,13 +282,12 @@ class Book_Plugin_Admin {
 			$atts
 		);
 
+		/*
 		$args = array(
 			'post_type'   => 'book',
 			'numberposts' => 100,
-			'post_status' => 'publish',
 			'meta_query'  => array(
 				'relation' => 'OR',
-
 			),
 		);
 
@@ -300,34 +299,33 @@ class Book_Plugin_Admin {
 		if ( '' !== $atts['author_name'] ) {
 			$args['meta_query'][] = array(
 				'key'     => 'author_name',
-				'value'   => sanitize_text_field( $atts['author_name'] ),
-				'compare' => '=',
+				'value'   => explode( ',', $atts['author_name'] ),
+				'compare' => 'IN',
 			);
 		}
 
 		if ( '' !== $atts['price'] ) {
 			$args['meta_query'][] = array(
 				'key'     => 'book_price',
-				'value'   => $atts['price'],
-				'compare' => '<',
+				'value'   => explode( ',', $atts['price'] ),
+				'compare' => 'IN',
 			);
 		}
 
 		if ( '' !== $atts['year'] ) {
 			$args['meta_query'][] = array(
 				'key'     => 'book_year',
-				'value'   => $atts['year'],
-				'compare' => '=',
+				'value'   => explode( ',', $atts['year'] ),
+				'compare' => 'IN',
 			);
 		}
 
 		if ( '' !== $atts['publisher'] ) {
 			$args['meta_query'][] = array(
 				'key'     => 'book_publisher',
-				'value'   => sanitize_text_field( $atts['publisher'] ),
-				'compare' => '=',
+				'value'   => explode( ',', $atts['publisher'] ),
+				'compare' => 'IN',
 			);
-
 		}
 
 		if ( '' !== $atts['category'] ) {
@@ -345,26 +343,81 @@ class Book_Plugin_Admin {
 				'terms'    => $atts['tag'],
 			);
 		}
+		*/
+
+		$args = array(
+			'post_type'      => 'book',
+			'post_status'    => 'publish',
+			'posts_per_page' => 100,
+			'meta_query'     => array(
+				'relation' => 'OR',
+				array(
+					'key'     => 'author_name',
+					'value'   => explode( ',', 'tejas' ),
+					'compare' => 'IN',
+				),
+				array(
+					'key'     => 'book_publisher',
+					'value'   => explode( ',', $atts['publisher'] ),
+					'compare' => 'IN',
+				),
+				array(
+					'key'     => 'book_year',
+					'value'   => explode( ',', $atts['year'] ),
+					'compare' => 'IN',
+				),
+			),
+		);
+
+		/*
+		if ( '' !== $atts['category'] ) {
+			$args['tax_query'][] = array(
+				'taxonomy' => 'book-catagory',
+				'field'    => 'slug',
+				'terms'    => $atts['category'],
+			);
+		}
+
+		if ( '' !== $atts['tag'] ) {
+			$args['tax_query'][] = array(
+				'taxonomy' => 'book-tag',
+				'field'    => 'slug',
+				'terms'    => $atts['tag'],
+			);
+		}
+		*/
 
 		error_log( print_r( $args, true ) );
 
-		$postslist = get_posts( $args );
+		$postslist = new WP_Query( $args );
 
-		$c = '<div>';
+		$c = '';
 
 		// looping through posts.
-		foreach ( $postslist as $all_post ) {
-
+		if ( $postslist->have_posts() ) {
 			// printing details of book.
+			while ( $postslist->have_posts() ) {
 
+				$c .= '<div style="border: 2px solid black;background-color:white;">
+				<p style="text-align:center;">ID of book     ' . esc_attr( get_the_ID() ) . '</p>
+				<p style="text-align:center;">Author Name    ' . get_metadata( 'book', get_the_ID(), 'author_name', true ) . '</p>
+				<p style="text-align:center;">Book Price     ' . get_metadata( 'book', get_the_ID(), 'book_price', true ) . '</p>
+				<p style="text-align:center;">Publisher      ' . get_metadata( 'book', get_the_ID(), 'book_edition', true ) . '</p>
+				<p style="text-align:center;">Book year      ' . get_metadata( 'book', get_the_ID(), 'book_year', true ) . '</p>
+				<p style="text-align:center;">Book Publisher ' . get_metadata( 'book', get_the_ID(), 'book_publisher', true ) . '</p>
+				</div><br/>';
+			}
+
+			/*
 			$c .= '<div style="border: 2px solid black;background-color:white;">
-                <p style="text-align:center;">ID of book     ' . esc_attr( $all_post->ID ) . '</p>
-                <p style="text-align:center;">Author Name    ' . get_metadata( 'book', $all_post->ID, 'author_name', true ) . '</p>
-                <p style="text-align:center;">Book Price     ' . get_metadata( 'book', $all_post->ID, 'book_price', true ) . '</p>
-                <p style="text-align:center;">Publisher      ' . get_metadata( 'book', $all_post->ID, 'book_edition', true ) . '</p>
-                <p style="text-align:center;">Book year      ' . get_metadata( 'book', $all_post->ID, 'book_year', true ) . '</p>
-                <p style="text-align:center;">Book Publisher ' . get_metadata( 'book', $all_post->ID, 'book_publisher', true ) . '</p>
-                </div><br/>';
+				<p style="text-align:center;">ID of book     ' . esc_attr( $all_post->ID ) . '</p>
+				<p style="text-align:center;">Author Name    ' . get_metadata( 'book', $all_post->ID, 'author_name', true ) . '</p>
+				<p style="text-align:center;">Book Price     ' . get_metadata( 'book', $all_post->ID, 'book_price', true ) . '</p>
+				<p style="text-align:center;">Publisher      ' . get_metadata( 'book', $all_post->ID, 'book_edition', true ) . '</p>
+				<p style="text-align:center;">Book year      ' . get_metadata( 'book', $all_post->ID, 'book_year', true ) . '</p>
+				<p style="text-align:center;">Book Publisher ' . get_metadata( 'book', $all_post->ID, 'book_publisher', true ) . '</p>
+				</div><br/>';
+				*/
 		}
 
 		return $c;
