@@ -76,7 +76,7 @@ class Book_Plugin_Activator
     require_once( ABSPATH . 'wp-admin/includes/upgrade.php' );
     
 		
-    // Create book meta table
+    // Create book meta table.
 		$schema = "CREATE TABLE {$wpdb->prefix}bookmeta (
 		meta_id bigint(20) NOT NULL AUTO_INCREMENT,
 		book_id bigint(20) NOT NULL DEFAULT '0',
@@ -86,9 +86,6 @@ class Book_Plugin_Activator
 		KEY book_id (book_id),
 		KEY meta_key (meta_key)
 		) CHARACTER SET utf8 COLLATE utf8_general_ci;";
-
-    //$column = sanitize_key( $meta_type . '_id' );
-
 
     dbDelta( $schema );
 

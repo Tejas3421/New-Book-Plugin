@@ -254,8 +254,135 @@ class Book_Plugin_Admin {
 	public function shortcode_adding_fucntion() {
 
 		// added shortcode "Book".
-		add_shortcode( 'Book', array( $this, 'new_shortcode_book' ) );
+		add_shortcode( 'book', array( $this, 'wp_book_shortcode' ) );
 	}
+
+	/**
+	 * Adding shortcode functionality
+	 *
+	 * @param [type] $attributes getting attributes from user.
+	 * @param [type] $content returning some content on page.
+	 * @return content
+	 */
+	public function wp_book_shortcode( $attributes, $content ) {
+		$attributes = shortcode_atts(
+			array(
+				'id'          => '',
+				'author_name' => '',
+				'publisher'   => '',
+				'year'        => '',
+				'tag'         => '',
+				'category'    => '',
+			),
+			$attributes,
+			'book'
+		);
+
+		if ( '' != $attributes['id'] ) {
+			$args       = array(
+				'post_type'      => 'book',
+				'post_status'    => 'publish',
+			);
+			$args['p'] = $attributes['id'];
+		} elseif ( $attributes['category'] != '' || $attributes['tag'] != '' ) {
+
+			$args = array(
+				'post_type'      => 'book',
+				'post_status'    => 'publish',
+				'tax_query' => array(
+					'relation' => 'OR',
+					array(
+						'taxonomy'         => 'book-catagory',
+						'field'            => 'slug',
+						'terms'            => explode( ',', $attributes['category'] ),
+						'include_children' => true,
+						'operator'         => 'IN',
+					),
+					array(
+						'taxonomy'         => 'book-tag',
+						'field'            => 'slug',
+						'terms'            => explode( ',', $attributes['tag'] ),
+						'include_children' => false,
+						'operator'         => 'IN',
+					),
+				),
+			);
+		} elseif ( $attributes['author_name'] != '' || $attributes['publisher'] != '' || $attributes['year'] != '' ) {
+			// For :- [book author_name="a1" publisher="p1,p2" year="2009"].
+			$args = array(
+				'post_type'      => 'book',
+				'post_status'    => 'publish',
+				'meta_query' => array(
+					'relation' => 'OR',
+					array(
+						'key'     => 'author_name',
+						'value'   => explode( ',', $attributes['author_name'] ),
+						'compare' => 'IN',
+					),
+					array(
+						'key'     => 'book_publisher',
+						'value'   => explode( ',', $attributes['publisher'] ),
+						'compare' => 'IN',
+					),
+					array(
+						'key'     => 'book_year',
+						'value'   => explode( ',', $attributes['year'] ),
+						'compare' => 'IN',
+					),
+				),
+				'meta_table' => 'wp_bookmeta',
+				'meta_id_column' => 'book_id',
+			);
+		}else{
+			$args = [
+				'post_type'      => 'book',
+				'post_status'    => 'publish',
+				'posts_per_page' => get_option('wp_book_nop'),
+			];
+		}
+
+		/*
+		$args = [
+		'p'              => $attributes['id'],
+		'post_type'      => 'book',
+		'post_status'    => 'publish',
+		'posts_per_page' => get_option('wp_book_nop'),
+		];
+		*/
+
+		$query = new WP_Query( $args );
+
+		//error_log( print_r( $args, true ) );
+
+		if ( $query->have_posts() == true ) {
+
+			while ( $query->have_posts() == true ) {
+
+				$query->the_post();
+
+				// Refer Online Convertor also.
+				// $result = @file_get_contents("https://api.exchangeratesapi.io/latest?base=USD");.
+
+				// Iterate post index in loop.
+				$content .= '<article id="book-' . get_the_ID() . '">';
+				$content .= '<center><h3 style="color: maroon;">' . get_the_title() . '</h3></center>';
+				$content .= '<p>' . get_the_content() . '</p>';
+				$content .= '<p> Author :- ' . get_metadata( 'book', get_the_ID(), 'author_name', true );
+				$content .= '<br> publisher :- ' . get_metadata( 'book', get_the_ID(), 'book_publisher', true );
+				$content .= '<br> year :- ' . get_metadata( 'book', get_the_ID(), 'book_year', true );
+				// $content .= '<br> price :- '.$price.' '.$currSymbol['wp_book_currency'];
+				// $content .= '<br> URL :- <a href='.get_metadata('book', get_the_ID(), '_url_meta', true).'>'.get_metadata('book', get_the_ID(), '_url_meta', true).'</a>';
+				$content .= '</article>';
+			}//end while
+		} else {
+			$content .= 'No Book Found....';
+		}//end if
+
+		return $content;
+
+	}//end wp_book_shortcode()
+
+
 
 
 	/**
@@ -466,33 +593,38 @@ class Book_Plugin_Admin {
 	 */
 	public function update_book_meta_data( $post_id ) {
 		// updating author name in  book meta table.
-		if ( isset( $_POST['author_name'] ) ) {
+		if ( ! empty( $_POST['author_name'] ) && isset( $_POST['author_name'] ) ) {
 			$author_name = sanitize_text_field( wp_unslash( $_POST['author_name'] ) );
 			update_metadata( 'book', $post_id, 'author_name', $author_name );
+			update_post_meta( $post_id, 'author_name', $author_name );
 		}
 
 		// updating value of price in book meta table.
-		if ( isset( $_POST['book_price'] ) ) {
+		if ( ! empty( $_POST['book_price'] ) && isset( $_POST['book_price'] ) ) {
 			$book_price = sanitize_text_field( wp_unslash( $_POST['book_price'] ) );
 			update_metadata( 'book', $post_id, 'book_price', $book_price );
+			update_post_meta( $post_id, 'book_price', $book_price );
 		}
 
 		// updating value of publisher in meta table.
-		if ( isset( $_POST['book_publisher'] ) ) {
+		if ( ! empty( $_POST['book_publisher'] ) && isset( $_POST['book_publisher'] ) ) {
 			$book_publisher = sanitize_text_field( wp_unslash( $_POST['book_publisher'] ) );
 			update_metadata( 'book', $post_id, 'book_publisher', $book_publisher );
+			update_post_meta( $post_id, 'book_publisher', $book_publisher );
 		}
 
 		// updating value of year in book meta table.
-		if ( isset( $_POST['book_year'] ) ) {
+		if ( ! empty( $_POST['book_year'] ) && isset( $_POST['book_year'] ) ) {
 			$book_year = sanitize_text_field( wp_unslash( $_POST['book_year'] ) );
 			update_metadata( 'book', $post_id, 'book_year', $book_year );
+			update_post_meta( $post_id, 'book_year', $book_year );
 		}
 
 		// updating value of edition in book meta table.
-		if ( isset( $_POST['book_edition'] ) ) {
+		if ( ! empty( $_POST['book_edition'] ) && isset( $_POST['book_edition'] ) ) {
 			$book_edition = sanitize_text_field( wp_unslash( $_POST['book_edition'] ) );
 			update_metadata( 'book', $post_id, 'book_edition', $book_edition );
+			update_post_meta( $post_id, 'book_edition', $book_edition );
 		}
 	}
 
@@ -557,6 +689,7 @@ class Book_Plugin_Admin {
 	public function register_metatable() {
 		global $wpdb;
 		$wpdb->bookmeta = $wpdb->prefix . 'bookmeta';
+		error_log(print_r($wpdb->tables, true));
 		$wpdb->tables[] = 'bookmeta';
 	}
 
